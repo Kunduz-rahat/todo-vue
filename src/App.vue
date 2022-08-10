@@ -8,16 +8,15 @@
   <button @click="createTodo">Добавить задачу</button>
   </form>
  
-<div v-for="todo in todos" :key="todo.id">
+<div v-for="todo in todosFiltered" :key="todo.id">
 
-<input type="checkbox" id="checkbox" v-model="checked" onchange="toggleTodo" />
-<label for="checkbox">{{ checked }}</label>
+<input type="checkbox" v-model="todo.active" />
 <span>{{todo.text}}</span>
 <button @click="removeTodo">Delete</button>
 </div> 
-<button @click="isActive">Активные</button>    
-<button @click="all">Все</button>
-<button @click="isCompleted">Завершенные</button>
+<button  @click="filterBy='active'">Активные</button>    
+<button @click="filterBy='all'">Все</button>
+<button @click="filterBy='completed'">Завершенные</button>
  </div>
 </template>
 <script>
@@ -26,35 +25,30 @@ export default{
   data(){
     return {
       todos:[],
+      filterBy:"all"
     
     }
   },
   methods:{
+    // create new Todo//
 createTodo(){
 const newTodo={
   id:Date.now(),
   text:this.text,
   active:false
 }
+
 this.todos.push(newTodo)
 this.text=""
 },
+
+// delete Todo  //
 removeTodo(id){
 this.todos.splice(id, 1)
 console.log(id)
 },
-toggleTodo(){
-this.active=!this.active
-},
-all(){
 
-},
-isActive(){
 
-},
-isCompleted(){
-
-},
 async fetchTodos(){
       try{
 const response = await axios.get('https://my-json-server.typicode.com/falk20/demo/todos')
@@ -68,7 +62,19 @@ console.log(response)
   },
   mounted(){
       this.fetchTodos()
-    }
+    },
+    computed:{
+todosFiltered(){
+  if(this.filterBy =="all"){
+    return this.todos
+  }else if(this.filterBy=="active"){
+return this.todos.filter(todo=>!todo.active)
+  }else if(this.filterBy=="completed"){
+    return this.todos.filter(todo=>todo.active)
+  }
+  return this.todos
+}
+}
 }
 </script>
 <style>
